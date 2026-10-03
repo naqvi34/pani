@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Pani Diary</title>
+<title>Aqua Up</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
@@ -92,6 +92,8 @@ button.card{width:100%;text-align:start;align-items:flex-start}
 .seg button[aria-checked="true"].s-pend{background:var(--due-bg);color:var(--due)}
 .partin{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--muted)}
 .partin input{width:130px}
+.hint{margin-top:6px}
+input[type="file"]{width:100%;font-size:15px;padding-block:6px}
 .card.done .nm{color:var(--muted)}
 .note{color:var(--muted);font-size:13px;margin-block:8px}
 .btn{min-height:46px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600}
@@ -157,7 +159,7 @@ html{color-scheme:light}
 var KEY='pani-diary-v1';
 var LI={en:0,ur:1,ro:2};
 var S={
- app:['Pani Diary','پانی ڈائری','Pani Diary'],
+ app:['Aqua Up','ایکوا اپ','Aqua Up'],
  t_today:['Today','آج','Aaj'], t_homes:['Homes','گھر','Ghar'], t_money:['Money','حساب','Hisab'], t_backup:['Backup','بیک اپ','Backup'],
  of_done:['{a} of {b} delivered','{b} میں سے {a} ڈیلیور','{b} mein se {a} de diye'],
  s_cash:['Cash received','وصول نقد','Cash mila'], s_pending:['Pending','بقایا','Baqaya'], s_left:['Left','باقی','Baqi'],
@@ -169,7 +171,9 @@ var S={
  bottles_n:['{n} bottles','{n} بوتلیں','{n} bottle'],
  qty:['Bottles','بوتلیں','Bottle'],
  pay_paid:['Cash got','نقد ملا','Cash mila'], pay_part:['Part','کچھ','Kuch'], pay_pend:['Pending','باقی','Baqaya'],
- part_amt:['Received (Rs)','وصول رقم (روپے)','Mili raqam (Rs)'],
+ part_amt:['Amount received (Rs)','وصول رقم (روپے)','Mili raqam (Rs)'],
+ rem:['Remaining Rs {n}','باقی {n} روپے','Baqi Rs {n}'],
+ adv_add:['Extra Rs {n} saved as advance','اضافی {n} روپے ایڈوانس میں','Extra Rs {n} advance mein'],
  owes:['Owes Rs {n}','بقایا {n} روپے','Baqaya Rs {n}'], advance:['Advance Rs {n}','ایڈوانس {n} روپے','Advance Rs {n}'],
  add_home:['Add home','گھر شامل کریں','Ghar add karein'], edit:['Edit','ترمیم','Edit'], save:['Save','محفوظ کریں','Save'],
  cancel:['Cancel','منسوخ','Cancel'], close:['Close','بند کریں','Band karein'], del:['Delete','حذف کریں','Delete'],
@@ -210,6 +214,15 @@ var S={
  b_paste:['Paste backup text here','بیک اپ کا متن یہاں پیسٹ کریں','Backup ka text yahan paste karein'],
  b_btn:['Restore','بحال کریں','Restore'],
  b_confirm:['This replaces everything on this phone. Tap Restore again to continue.','اس سے فون کا موجودہ ڈیٹا بدل جائے گا۔ جاری رکھنے کے لیے دوبارہ بحال کریں دبائیں۔','Is se phone ka data badal jayega. Jari rakhne ke liye dobara Restore dabayein.'],
+ b_why2:['Your records live only on this phone. Save a backup file to Google Drive, WhatsApp or Files once a week. If you change phones, restore it here.','آپ کا ریکارڈ صرف اسی فون میں ہے۔ ہفتے میں ایک بار بیک اپ فائل گوگل ڈرائیو، واٹس ایپ یا فائلز میں محفوظ کریں۔ فون بدلنے پر یہاں بحال کریں۔','Aap ka record sirf isi phone mein hai. Hafte mein ek baar backup file Google Drive, WhatsApp ya Files mein save karein. Phone badalne par yahan restore karein.'],
+ b_share:['Save backup (Drive, WhatsApp, Files)','بیک اپ محفوظ کریں (ڈرائیو، واٹس ایپ، فائلز)','Backup save karein (Drive, WhatsApp, Files)'],
+ b_dl:['Download file','فائل ڈاؤن لوڈ کریں','File download karein'],
+ b_copy2:['Copy as text','متن کاپی کریں','Text copy karein'],
+ b_file:['Choose backup file','بیک اپ فائل چنیں','Backup file chunein'],
+ b_loaded:['File loaded. Tap Restore to continue.','فائل لوڈ ہو گئی۔ جاری رکھنے کے لیے بحال کریں دبائیں۔','File load ho gayi. Jari rakhne ke liye Restore dabayein.'],
+ b_saved:['Backup saved.','بیک اپ محفوظ ہو گیا۔','Backup save ho gaya.'],
+ b_remind2:['Time to save a backup.','بیک اپ محفوظ کرنے کا وقت ہے۔','Backup save karne ka waqt hai.'],
+ b_copyfail2:['Could not copy. Use Save backup instead.','کاپی نہیں ہو سکا۔ بیک اپ محفوظ کریں استعمال کریں۔','Copy nahi hua. Save backup istemal karein.'],
  b_done:['Restored.','بحال ہو گیا۔','Restore ho gaya.'], b_bad:['That text is not a valid backup.','یہ متن درست بیک اپ نہیں ہے۔','Yeh text durust backup nahi hai.'],
  b_copy_t:['Your backup','آپ کا بیک اپ','Aap ka backup'],
  nostore:['This browser is blocking storage. Data will be lost when you close the page.','یہ براؤزر اسٹوریج روک رہا ہے۔ صفحہ بند کرنے پر ڈیٹا ختم ہو جائے گا۔','Yeh browser storage rok raha hai. Page band karne par data khatam ho jayega.']
@@ -300,6 +313,12 @@ function emptyState(){
   return '<div class="empty">'+ic(P.drop,44,true).replace('<svg','<svg style="color:var(--accent)"')+'<h2>'+T('empty_t')+'</h2><p>'+T('empty_b')+'</p>'+
     '<button class="btn pri" data-act="addHome">'+T('add_home')+'</button><button class="btn" data-act="sample">'+T('load_sample')+'</button></div>';
 }
+function partHint(amt,paid){
+  paid=+paid||0;
+  if(paid>amt)return '<span class="chip ok">'+T('adv_add',{n:fmt(paid-amt)})+'</span>';
+  if(paid<amt)return '<span class="chip due">'+T('rem',{n:fmt(amt-paid)})+'</span>';
+  return '';
+}
 function balChip(hid){
   var b=bal(hid);
   if(b>0)return '<span class="chip due">'+T('owes',{n:fmt(b)})+'</span>';
@@ -321,7 +340,8 @@ function todayView(){
   var remind='';
   if(db.ent.length){
     var lb=db.lastBackup?dayDiff(t,db.lastBackup.slice(0,10)):999;
-    if(lb>=14)remind='<button class="warn" style="width:100%;border:0;text-align:start" data-act="tab" data-t="backup">'+T('b_remind')+'</button>';
+    var since=db.ent.length-(db.lastBackupN||0);
+    if(lb>=7||since>=40)remind='<button class="warn" style="width:100%;border:0;text-align:start" data-act="tab" data-t="backup">'+T('b_remind2')+'</button>';
   }
   var h='<div class="dnav"><button class="ib" data-act="day" data-d="-1" aria-label="-1">'+ic(P.prev,22).replace('<svg','<svg class="flip"')+'</button>'+
     '<div class="mid"><b>'+fmtD(date)+'</b>'+(isT?'<span class="sub">'+T('tdy')+'</span>':'<button data-act="gotoday">'+T('tdy')+'</button>')+'</div>'+
@@ -346,14 +366,14 @@ function card(h,date,fut){
   if(fut)s+='<span class="chip">'+T('bottles_n',{n:q})+'</span>';
   else s+='<div class="step"><button data-act="qty" data-h="'+h.id+'" data-dl="-1" aria-label="-">−</button><output>'+T('bottles_n',{n:q})+'</output><button data-act="qty" data-h="'+h.id+'" data-dl="1" aria-label="+">+</button></div>';
   if(done&&amt>0){
-    var st=e.paid>=e.amt?'paid':e.paid<=0?'pend':'part';
+    var st=e.paid===e.amt?'paid':e.paid<=0?'pend':'part';
     if(ui.part[key])st='part';
     s+='<div class="seg" role="radiogroup">'+
       '<button class="s-paid" role="radio" aria-checked="'+(st==='paid')+'" data-act="pay" data-m="paid" data-h="'+h.id+'">'+T('pay_paid')+'</button>'+
       '<button class="s-part" role="radio" aria-checked="'+(st==='part')+'" data-act="pay" data-m="part" data-h="'+h.id+'">'+T('pay_part')+'</button>'+
       '<button class="s-pend" role="radio" aria-checked="'+(st==='pend')+'" data-act="pay" data-m="pend" data-h="'+h.id+'">'+T('pay_pend')+'</button></div>';
     s+='</div>';
-    if(st==='part')s+='<div class="partin"><label for="pp-'+h.id+'">'+T('part_amt')+'</label><input type="number" inputmode="numeric" min="0" max="'+e.amt+'" id="pp-'+h.id+'" data-chg="part" data-h="'+h.id+'" value="'+(e.paid||'')+'"></div>';
+    if(st==='part')s+='<div class="partin"><label for="pp-'+h.id+'">'+T('part_amt')+'</label><input type="number" inputmode="numeric" min="0" id="pp-'+h.id+'" data-chg="part" data-h="'+h.id+'" data-amt="'+e.amt+'" value="'+(e.paid||'')+'"></div><div class="hint" id="ph-'+h.id+'">'+partHint(e.amt,e.paid)+'</div>';
   } else s+='</div>';
   return s+'</div></div>';
 }
@@ -406,10 +426,10 @@ function moneyView(){
 /* ---------- Backup ---------- */
 function backupView(){
   var lb=db.lastBackup?T('b_last',{d:fmtD(db.lastBackup.slice(0,10))}):T('b_none');
-  return '<h2 class="h2" style="margin-block-start:6px">'+T('b_copy_t')+'</h2><p class="note">'+T('b_why')+'</p><p class="note"><b>'+lb+'</b></p>'+
-    '<div class="fld"><textarea id="btxt" readonly rows="4" aria-label="'+esc(T('b_copy_t'))+'">'+esc(JSON.stringify(db))+'</textarea></div>'+
-    '<button class="btn pri full" data-act="copyBackup">'+T('b_copy')+'</button>'+
-    '<h2 class="h2">'+T('b_restore')+'</h2><div class="fld"><textarea id="rtxt" placeholder="'+esc(T('b_paste'))+'" aria-label="'+esc(T('b_paste'))+'"></textarea></div>'+
+  return '<h2 class="h2" style="margin-block-start:6px">'+T('b_copy_t')+'</h2><p class="note">'+T('b_why2')+'</p><p class="note"><b>'+lb+'</b></p>'+
+    '<button class="btn pri full" data-act="shareBackup">'+T('b_share')+'</button>'+
+    '<div class="acts"><button class="btn" data-act="dlBackup">'+T('b_dl')+'</button><button class="btn" data-act="copyBackup">'+T('b_copy2')+'</button></div>'+
+    '<h2 class="h2">'+T('b_restore')+'</h2><div class="fld"><label for="rfile">'+T('b_file')+'</label><input type="file" id="rfile" data-chg="rfile" accept=".json,.txt,application/json,text/plain"></div><div class="fld"><textarea id="rtxt" placeholder="'+esc(T('b_paste'))+'" aria-label="'+esc(T('b_paste'))+'"></textarea></div>'+
     '<div class="err" id="rmsg" role="alert"></div><button class="btn full" data-act="restore">'+T('b_btn')+'</button>';
 }
 
@@ -502,7 +522,7 @@ function tick(hid){
 }
 function qty(hid,dl){
   var h=home(hid),date=ui.date,e=delivery(hid,date);if(!h)return;
-  if(e){var full=e.paid>=e.amt;e.b=Math.max(1,e.b+dl);e.amt=e.b*e.pr;e.paid=full?e.amt:Math.min(e.paid,e.amt);}
+  if(e){var full=e.paid===e.amt;e.b=Math.max(1,e.b+dl);e.amt=e.b*e.pr;if(full)e.paid=e.amt;}
   else{var k=date+hid;ui.draft[k]=Math.max(1,(ui.draft[k]||h.bottles)+dl);}
   save();render();
 }
@@ -510,13 +530,13 @@ function pay(hid,m){
   var e=delivery(hid,ui.date);if(!e)return;var key=ui.date+hid;
   if(m==='paid'){e.paid=e.amt;ui.part[key]=false;}
   else if(m==='pend'){e.paid=0;ui.part[key]=false;}
-  else{if(e.paid>=e.amt)e.paid=0;ui.part[key]=true;}
+  else{ui.part[key]=true;}
   save();render();
 }
 function setPart(hid,val){
   var e=delivery(hid,ui.date);if(!e)return;
-  e.paid=Math.min(e.amt,Math.max(0,Math.round(+val||0)));
-  if(e.paid>=e.amt)ui.part[ui.date+hid]=false;
+  e.paid=Math.max(0,Math.round(+val||0));
+  ui.part[ui.date+hid]=e.paid>0&&e.paid!==e.amt;
   save();render();
 }
 function gv(id){return document.getElementById(id);}
@@ -549,11 +569,42 @@ function loadSample(){
     mk('Ali General Store','Main Market',4,120,true,{type:'weekdays',n:2,start:t,days:[2,5,0]}));
   save();render();
 }
+function backupText(){return JSON.stringify(db);}
+function backupName(ext){return 'aqua-up-backup-'+todayStr()+'.'+ext;}
+function markBackup(){db.lastBackup=new Date().toISOString();db.lastBackupN=db.ent.length;save();render();toast(T('b_saved'));}
+function downloadBackup(){
+  var blob=new Blob([backupText()],{type:'application/json'});
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=backupName('json');document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);if(a.parentNode)a.parentNode.removeChild(a);},1500);
+  markBackup();
+}
+function shareBackup(){
+  var txt=backupText(),tries=[['json','application/json'],['txt','text/plain']];
+  try{
+    if(navigator.share&&navigator.canShare&&typeof File==='function'){
+      for(var i=0;i<tries.length;i++){
+        var f=new File([txt],backupName(tries[i][0]),{type:tries[i][1]});
+        if(navigator.canShare({files:[f]})){
+          navigator.share({files:[f],title:'Aqua Up backup'}).then(markBackup,function(e){if(!e||e.name!=='AbortError')downloadBackup();});
+          return;
+        }
+      }
+    }
+  }catch(e){}
+  downloadBackup();
+}
 function copyBackup(){
-  var ta=gv('btxt'),txt=ta.value;
-  var ok=function(){db.lastBackup=new Date().toISOString();save();render();toast(T('b_copied'));};
-  var fail=function(){ta.focus();ta.select();toast(T('b_copyfail'));};
-  try{navigator.clipboard.writeText(txt).then(ok,fail);}catch(e){fail();}
+  var ok=function(){db.lastBackup=new Date().toISOString();db.lastBackupN=db.ent.length;save();render();toast(T('b_copied'));};
+  var fail=function(){toast(T('b_copyfail2'));};
+  try{navigator.clipboard.writeText(backupText()).then(ok,fail);}catch(e){fail();}
+}
+function loadRestoreFile(file){
+  if(!file)return;
+  var r=new FileReader();
+  r.onload=function(){gv('rtxt').value=String(r.result||'');ui.armed=false;gv('rmsg').textContent=T('b_loaded');};
+  r.onerror=function(){gv('rmsg').textContent=T('b_bad');};
+  r.readAsText(file);
 }
 function doRestore(){
   var msg=gv('rmsg'),raw=gv('rtxt').value.trim(),d;
@@ -598,6 +649,8 @@ function onClick(ev){
       var hm=home(h);if(hm){var b=hm.bottles,amt=b*hm.price;db.ent.push({id:uid(),k:'d',h:h,date:ui.date,b:b,pr:hm.price,amt:amt,paid:hm.cod?amt:0});save();}
       ui.modal=null;renderModal();render();break;
     case 'sample':loadSample();break;
+    case 'shareBackup':shareBackup();break;
+    case 'dlBackup':downloadBackup();break;
     case 'copyBackup':copyBackup();break;
     case 'restore':doRestore();break;
   }
@@ -605,10 +658,12 @@ function onClick(ev){
 function onChange(ev){
   var el=ev.target,c=el.dataset&&el.dataset.chg;if(!c)return;
   if(c==='part')setPart(el.dataset.h,el.value);
+  if(c==='rfile')loadRestoreFile(el.files&&el.files[0]);
   if(c==='stype'){gv('sch-every').hidden=el.value!=='every';gv('sch-days').hidden=el.value!=='weekdays';}
 }
 function onInput(ev){
   var el=ev.target;
+  if(el.dataset&&el.dataset.chg==='part'){var hh=gv('ph-'+el.dataset.h);if(hh)hh.innerHTML=partHint(+el.dataset.amt,+el.value);}
   if(el.id==='q'){ui.search=el.value;var l=gv('homelist');if(l)l.innerHTML=homeList();}
   if(el.id==='rtxt'){ui.armed=false;var m=gv('rmsg');if(m)m.textContent='';}
 }

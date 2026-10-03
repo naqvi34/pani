@@ -1,6 +1,6 @@
 {
-  "name": "Pani Diary",
-  "short_name": "Pani Diary",
+  "name": "Aqua Up",
+  "short_name": "Aqua Up",
   "description": "Water delivery log: homes, schedules, daily checklist, cash and pending payments.",
   "start_url": "./index.html",
   "scope": "./",
