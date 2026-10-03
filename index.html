@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b7a9e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Pani Diary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
+<style>
+/* Layout: one narrow column, sticky header, bottom tab bar, bottom sheets for forms.
+   Palette: deep teal ink, clear aqua accent. Green and amber are used only for cash state. */
+:root{
+  --bg:#eef4f5; --surface:#ffffff; --surface2:#e2edef; --ink:#0c2b33; --muted:#527179; --line:#cddcdf;
+  --accent:#0b7a9e; --accent-ink:#ffffff;
+  --paid:#17794a; --paid-bg:#dcf2e6; --due:#a84b08; --due-bg:#fbe8d4; --danger:#b42318;
+  --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --body:'Figtree','Noto Naskh Arabic',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1a1f; --surface:#11272e; --surface2:#183540; --ink:#e6f2f4; --muted:#8fb0b8; --line:#24424b;
+    --accent:#4cc3e6; --accent-ink:#05222b;
+    --paid:#5fd49a; --paid-bg:#12382a; --due:#f0a45d; --due-bg:#3a2814; --danger:#ff8a7a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1a1f; --surface:#11272e; --surface2:#183540; --ink:#e6f2f4; --muted:#8fb0b8; --line:#24424b;
+  --accent:#4cc3e6; --accent-ink:#05222b;
+  --paid:#5fd49a; --paid-bg:#12382a; --due:#f0a45d; --due-bg:#3a2814; --danger:#ff8a7a;
+  color-scheme:dark;
+}
+html[lang="ur"]{
+  --body:'Noto Naskh Arabic','Figtree',system-ui,sans-serif;
+  --display:'Noto Naskh Arabic','Bricolage Grotesque',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-text-size-adjust:100%}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#app{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:0 108px}
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px}
+.brand{display:flex;align-items:center;gap:8px;font:800 22px/1 var(--display);letter-spacing:-.01em}
+.brand svg{color:var(--accent)}
+.lang{display:flex;background:var(--surface2);border-radius:999px;padding:3px}
+.lang button{border:0;background:transparent;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted);min-height:34px}
+.lang button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.14)}
+.warn{background:var(--due-bg);color:var(--due);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;margin-block-end:12px}
+.dnav{display:flex;align-items:center;gap:8px;margin-block:4px 12px}
+.dnav .mid{flex:1;text-align:center;min-width:0}
+.dnav .mid b{display:block;font:700 18px/1.2 var(--display)}
+.dnav .mid button{border:0;background:none;color:var(--accent);font-weight:600;font-size:13px;min-height:28px;padding:0}
+.ib{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+[dir="rtl"] .flip{transform:scaleX(-1)}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.sum>div{padding:12px 10px;min-width:0}
+.sum>div+div{border-inline-start:1px solid var(--line)}
+.sum b{display:block;font:800 21px/1.15 var(--display);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sum span{font-size:12px;color:var(--muted)}
+.bar{height:6px;border-radius:99px;background:var(--surface2);overflow:hidden;margin-block:12px 14px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .25s}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.card{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;min-width:0}
+button.card{width:100%;text-align:start;align-items:flex-start}
+.chk{flex:none;width:48px;height:48px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:transparent;display:grid;place-items:center}
+.chk[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chk:disabled{opacity:.4;cursor:default}
+.main{flex:1;min-width:0}
+.top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.nm{font:700 17px/1.25 var(--display);overflow-wrap:anywhere}
+.amt{font:700 16px var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sub{color:var(--muted);font-size:13px;margin-top:2px;overflow-wrap:anywhere}
+.chips-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--surface2);color:var(--muted)}
+.chip.due{background:var(--due-bg);color:var(--due)}
+.chip.ok{background:var(--paid-bg);color:var(--paid)}
+.row2{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.step{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.step button{width:42px;height:42px;border:0;background:var(--surface2);font-size:20px;font-weight:700}
+.step output{min-width:78px;text-align:center;padding-inline:6px;font-weight:600;font-variant-numeric:tabular-nums;font-size:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:0 12px;min-height:42px;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button[aria-checked="true"].s-paid{background:var(--paid-bg);color:var(--paid)}
+.seg button[aria-checked="true"].s-part{background:var(--surface2);color:var(--ink)}
+.seg button[aria-checked="true"].s-pend{background:var(--due-bg);color:var(--due)}
+.partin{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--muted)}
+.partin input{width:130px}
+.card.done .nm{color:var(--muted)}
+.note{color:var(--muted);font-size:13px;margin-block:8px}
+.btn{min-height:46px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.dng{color:var(--danger)}
+.btn.sm{min-height:40px;padding:0 12px;font-size:14px}
+.btn.full{width:100%}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin-block:14px}
+.h2{font:700 16px var(--display);margin-block:22px 10px}
+.empty{text-align:center;padding:36px 8px;display:grid;gap:12px;justify-items:center}
+.empty h2{font:800 22px var(--display);margin:0}
+.empty p{margin:0;color:var(--muted);max-width:34ch}
+.toolbar{display:flex;gap:10px;align-items:center;margin-block:4px 14px}
+.toolbar input{flex:1;min-width:0}
+.big{font:800 34px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.hero .sub{font-size:14px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-block-start:10px}
+.pair>div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}
+.pair b{display:block;font:700 20px var(--display);font-variant-numeric:tabular-nums}
+.pair span{font-size:12px;color:var(--muted)}
+.nav{position:fixed;inset-inline:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.nav>div{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;max-width:640px;margin:0 auto}
+.nav button{border:0;background:transparent;display:grid;justify-items:center;gap:2px;padding:6px 0;border-radius:12px;color:var(--muted);font-size:12px;font-weight:600;min-height:52px}
+.nav button[aria-current="page"]{color:var(--accent);background:var(--surface2)}
+.scrim{position:fixed;inset:0;z-index:50;background:rgba(5,20,25,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:640px;max-height:92%;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));outline:none}
+.sheet-h{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-block-end:12px}
+.sheet-h h2{margin:0;font:800 22px/1.2 var(--display);overflow-wrap:anywhere}
+.kv{display:grid;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.kv div{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;font-size:14px}
+.kv div+div{border-top:1px solid var(--line)}
+.kv span{color:var(--muted)}
+.kv b{text-align:end;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.hist{list-style:none;margin:0;padding:0}
+.hist li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.hist li>div{min-width:0}
+.fld{display:grid;gap:6px;margin-block-end:14px}
+.fld>label,.lbl{font-size:13px;font-weight:600;color:var(--muted)}
+input[type="text"],input[type="number"],input[type="date"],input[type="tel"],textarea{width:100%;min-height:48px;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:0 12px;font-size:16px}
+textarea{padding:10px 12px;min-height:96px;line-height:1.4}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chipsel{display:flex;flex-wrap:wrap;gap:8px}
+.chipsel button{min-height:44px;min-width:56px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-weight:600}
+.chipsel button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.radio{display:flex;align-items:center;gap:10px;min-height:44px}
+.radio input{width:22px;height:22px;accent-color:var(--accent);margin:0}
+.err{color:var(--danger);font-size:14px;font-weight:600;min-height:20px;margin-block-end:8px}
+.toast{position:fixed;inset-inline:16px;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:60;max-width:420px;margin-inline:auto;background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:12px;font-weight:600;font-size:14px;text-align:center}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+@media (max-width:360px){.two,.pair{grid-template-columns:1fr}}
+[hidden]{display:none!important}
+html{color-scheme:light}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal"></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='pani-diary-v1';
+var LI={en:0,ur:1,ro:2};
+var S={
+ app:['Pani Diary','پانی ڈائری','Pani Diary'],
+ t_today:['Today','آج','Aaj'], t_homes:['Homes','گھر','Ghar'], t_money:['Money','حساب','Hisab'], t_backup:['Backup','بیک اپ','Backup'],
+ of_done:['{a} of {b} delivered','{b} میں سے {a} ڈیلیور','{b} mein se {a} de diye'],
+ s_cash:['Cash received','وصول نقد','Cash mila'], s_pending:['Pending','بقایا','Baqaya'], s_left:['Left','باقی','Baqi'],
+ nodue:['No deliveries due on this day.','اس دن کوئی ڈیلیوری نہیں۔','Is din koi delivery nahi.'],
+ addextra:['Add another home','ایک اور گھر شامل کریں','Aur ghar add karein'],
+ extra_t:['Extra delivery','اضافی ڈیلیوری','Extra delivery'],
+ extra_none:['All homes are already on this list.','تمام گھر پہلے سے فہرست میں ہیں۔','Sab ghar pehle se list mein hain.'],
+ future:['Future day. Deliveries can be ticked on the day.','آنے والا دن۔ ڈیلیوری اسی دن لگائیں۔','Aane wala din. Delivery usi din tick karein.'],
+ bottles_n:['{n} bottles','{n} بوتلیں','{n} bottle'],
+ qty:['Bottles','بوتلیں','Bottle'],
+ pay_paid:['Cash got','نقد ملا','Cash mila'], pay_part:['Part','کچھ','Kuch'], pay_pend:['Pending','باقی','Baqaya'],
+ part_amt:['Received (Rs)','وصول رقم (روپے)','Mili raqam (Rs)'],
+ owes:['Owes Rs {n}','بقایا {n} روپے','Baqaya Rs {n}'], advance:['Advance Rs {n}','ایڈوانس {n} روپے','Advance Rs {n}'],
+ add_home:['Add home','گھر شامل کریں','Ghar add karein'], edit:['Edit','ترمیم','Edit'], save:['Save','محفوظ کریں','Save'],
+ cancel:['Cancel','منسوخ','Cancel'], close:['Close','بند کریں','Band karein'], del:['Delete','حذف کریں','Delete'],
+ del_sure:['Tap again to delete','حذف کے لیے دوبارہ دبائیں','Delete ke liye dobara dabayein'],
+ search:['Search name or area','نام یا علاقہ تلاش کریں','Naam ya area dhoondein'],
+ f_name:['Name','نام','Naam'], f_area:['Area / address','علاقہ / پتہ','Area / pata'], f_phone:['Phone (optional)','فون (اختیاری)','Phone (optional)'],
+ f_bottles:['Bottles per delivery','فی ڈیلیوری بوتلیں','Har delivery bottle'], f_price:['Price per bottle (Rs)','فی بوتل قیمت (روپے)','Har bottle qeemat (Rs)'],
+ f_cod:['Pays cash on delivery','ڈیلیوری پر نقد دیتے ہیں','Delivery par cash dete hain'],
+ f_sched:['When do you deliver?','ڈیلیوری کب کرتے ہیں؟','Delivery kab karte hain?'],
+ sc_daily:['Every day','روزانہ','Roz'], sc_every:['Every few days','ہر کچھ دن بعد','Kuch din baad'], sc_week:['Chosen weekdays','منتخب دن','Chune hue din'],
+ sc_n:['Every how many days','کتنے دن بعد','Kitne din baad'], sc_start:['Counting from','گنتی کی ابتدا','Shuru ki tarikh'],
+ sc_sum_every:['Every {n} days','ہر {n} دن بعد','Har {n} din baad'],
+ paused:['Paused (skip for now)','روکا ہوا (فی الحال نہیں)','Ruka hua (abhi nahi)'], p_short:['Paused','رکا ہوا','Ruka hua'],
+ f_note:['Note (gate, floor, etc.)','نوٹ (گیٹ، منزل وغیرہ)','Note (gate, floor wagaira)'],
+ err_name:['Enter a name.','نام لکھیں۔','Naam likhein.'], err_days:['Pick at least one weekday.','کم از کم ایک دن چنیں۔','Kam az kam ek din chunein.'],
+ err_num:['Check bottles and price.','بوتلیں اور قیمت چیک کریں۔','Bottle aur qeemat check karein.'],
+ next:['Next delivery','اگلی ڈیلیوری','Agli delivery'], last:['Last delivery','آخری ڈیلیوری','Aakhri delivery'], never:['None yet','ابھی نہیں','Abhi nahi'],
+ tdy:['Today','آج','Aaj'], tmr:['Tomorrow','کل','Kal'],
+ per:['Per delivery','فی ڈیلیوری','Har delivery'], sched:['Schedule','شیڈول','Schedule'], bal:['Balance','بقایا رقم','Baqaya raqam'],
+ hist:['History','ریکارڈ','Record'], hist_none:['No records yet.','ابھی کوئی ریکارڈ نہیں۔','Abhi koi record nahi.'],
+ h_deliv:['{n} bottles · Rs {a} · received Rs {p}','{n} بوتلیں · {a} روپے · وصول {p}','{n} bottle · Rs {a} · mile Rs {p}'],
+ h_pay:['Payment received Rs {a}','ادائیگی وصول {a} روپے','Raqam mili Rs {a}'],
+ recv:['Receive payment','ادائیگی وصول کریں','Raqam wasool karein'], recv_amt:['Amount received (Rs)','وصول رقم (روپے)','Wasool raqam (Rs)'],
+ m_total:['Total pending','کل بقایا','Kul baqaya'], m_today:['Cash today','آج کی وصولی','Aaj ki wasooli'], m_month:['Cash this month','اس مہینے کی وصولی','Is mahine ki wasooli'],
+ m_list:['Payment pending','بقایا والے گھر','Baqaya wale ghar'], m_clear:['No pending payments.','کوئی بقایا نہیں۔','Koi baqaya nahi.'],
+ m_cash:['Recent cash','حالیہ وصولی','Haliya wasooli'], m_deliv:['on delivery','ڈیلیوری پر','delivery par'], m_later:['later payment','بعد میں ادائیگی','baad ki raqam'],
+ m_none:['No cash recorded yet.','ابھی کوئی وصولی درج نہیں۔','Abhi koi wasooli darj nahi.'],
+ empty_t:['Add your first home','پہلا گھر شامل کریں','Pehla ghar add karein'],
+ empty_b:['Save the homes you deliver to. The Today page then shows who is due each day.','جن گھروں میں پانی دیتے ہیں انہیں محفوظ کریں۔ آج کے صفحے پر روزانہ فہرست نظر آئے گی۔','Jin gharon mein pani dete hain unhein save karein. Aaj page par roz list nazar aayegi.'],
+ load_sample:['Load 4 sample homes','4 نمونہ گھر لگائیں','4 sample ghar lagayein'], sample:['(sample)','(نمونہ)','(sample)'],
+ b_why:['Your data is stored only on this phone, in this browser. Copy a backup now and then and keep it in a safe chat or note.','آپ کا ڈیٹا صرف اسی فون کے براؤزر میں ہے۔ وقتاً فوقتاً بیک اپ کاپی کر کے کسی محفوظ چیٹ یا نوٹ میں رکھیں۔','Aap ka data sirf isi phone ke browser mein hai. Kabhi kabhi backup copy karke kisi mehfooz chat ya note mein rakhein.'],
+ b_copy:['Copy backup','بیک اپ کاپی کریں','Backup copy karein'],
+ b_copied:['Backup copied. Paste it into a note or chat.','بیک اپ کاپی ہو گیا۔ اسے نوٹ یا چیٹ میں پیسٹ کریں۔','Backup copy ho gaya. Note ya chat mein paste karein.'],
+ b_copyfail:['Could not copy. The text is selected, copy it by hand.','کاپی نہیں ہو سکا۔ متن منتخب ہے، خود کاپی کریں۔','Copy nahi hua. Text select hai, khud copy karein.'],
+ b_last:['Last backup: {d}','آخری بیک اپ: {d}','Aakhri backup: {d}'], b_none:['No backup made yet.','ابھی بیک اپ نہیں بنایا۔','Abhi backup nahi banaya.'],
+ b_remind:['Make a backup soon.','جلد بیک اپ بنائیں۔','Jald backup banayein.'],
+ b_restore:['Restore from backup','بیک اپ سے بحال کریں','Backup se restore karein'],
+ b_paste:['Paste backup text here','بیک اپ کا متن یہاں پیسٹ کریں','Backup ka text yahan paste karein'],
+ b_btn:['Restore','بحال کریں','Restore'],
+ b_confirm:['This replaces everything on this phone. Tap Restore again to continue.','اس سے فون کا موجودہ ڈیٹا بدل جائے گا۔ جاری رکھنے کے لیے دوبارہ بحال کریں دبائیں۔','Is se phone ka data badal jayega. Jari rakhne ke liye dobara Restore dabayein.'],
+ b_done:['Restored.','بحال ہو گیا۔','Restore ho gaya.'], b_bad:['That text is not a valid backup.','یہ متن درست بیک اپ نہیں ہے۔','Yeh text durust backup nahi hai.'],
+ b_copy_t:['Your backup','آپ کا بیک اپ','Aap ka backup'],
+ nostore:['This browser is blocking storage. Data will be lost when you close the page.','یہ براؤزر اسٹوریج روک رہا ہے۔ صفحہ بند کرنے پر ڈیٹا ختم ہو جائے گا۔','Yeh browser storage rok raha hai. Page band karne par data khatam ho jayega.']
+};
+var WD={en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],ur:['اتوار','پیر','منگل','بدھ','جمعرات','جمعہ','ہفتہ'],ro:['Itwaar','Peer','Mangal','Budh','Jumeraat','Jumma','Hafta']};
+var MON={en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],ur:['جنوری','فروری','مارچ','اپریل','مئی','جون','جولائی','اگست','ستمبر','اکتوبر','نومبر','دسمبر'],ro:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']};
+var WEEK_ORDER=[1,2,3,4,5,6,0];
+
+var memOnly=false;
+function blank(){return {homes:[],ent:[],lang:'en',lastBackup:null};}
+function load(){
+  try{var r=localStorage.getItem(KEY);if(r){var d=JSON.parse(r);return Object.assign(blank(),d);}}catch(e){memOnly=true;}
+  return blank();
+}
+var db=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){memOnly=true;}}
+function T(k,v){
+  var a=S[k]||[k,k,k];var s=a[LI[db.lang]||0]||a[0];
+  if(v){for(var x in v){s=s.split('{'+x+'}').join(v[x]);}}
+  return s;
+}
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+var uid=function(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);};
+var fmt=function(n){return Math.round(n).toLocaleString('en-US');};
+
+var p2=function(n){return String(n).padStart(2,'0');};
+function ds(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+function todayStr(){return ds(new Date());}
+function pd(s){var a=s.split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
+function addD(s,n){var d=pd(s);d.setDate(d.getDate()+n);return ds(d);}
+function dayDiff(a,b){return Math.round((pd(a)-pd(b))/864e5);}
+function fmtD(s){var d=pd(s);return WD[db.lang][d.getDay()]+' '+d.getDate()+' '+MON[db.lang][d.getMonth()];}
+function rel(s){var t=todayStr();return s===t?T('tdy'):s===addD(t,1)?T('tmr'):fmtD(s);}
+
+var home=function(id){return db.homes.find(function(h){return h.id===id;});};
+function isDue(h,date){
+  if(h.paused)return false;
+  var s=h.sched||{type:'daily'};
+  if(s.type==='daily')return true;
+  if(s.type==='every'){var n=Math.max(1,+s.n||1);var df=dayDiff(date,s.start||h.created||date);return df>=0&&df%n===0;}
+  if(s.type==='weekdays')return (s.days||[]).indexOf(pd(date).getDay())>-1;
+  return false;
+}
+function nextDue(h){var t=todayStr();for(var i=0;i<370;i++){var d=addD(t,i);if(isDue(h,d))return d;}return null;}
+function lastDel(h){var m=null;db.ent.forEach(function(e){if(e.k==='d'&&e.h===h.id&&(!m||e.date>m))m=e.date;});return m;}
+function schedText(h){
+  var s=h.sched||{type:'daily'};
+  if(s.type==='daily')return T('sc_daily');
+  if(s.type==='every')return T('sc_sum_every',{n:s.n});
+  return WEEK_ORDER.filter(function(d){return (s.days||[]).indexOf(d)>-1;}).map(function(d){return WD[db.lang][d];}).join(', ');
+}
+function delivery(hid,date){return db.ent.find(function(e){return e.k==='d'&&e.h===hid&&e.date===date;});}
+function bal(hid){var b=0;db.ent.forEach(function(e){if(e.h!==hid)return;if(e.k==='d')b+=e.amt-e.paid;else b-=e.amt;});return b;}
+function cashFor(prefix){var t=0;db.ent.forEach(function(e){if(e.date.indexOf(prefix)!==0)return;t+=e.k==='d'?e.paid:e.amt;});return t;}
+var byRoute=function(a,b){return (a.area||'').localeCompare(b.area||'')||a.name.localeCompare(b.name);};
+
+var ui={tab:'today',date:todayStr(),follow:true,search:'',draft:{},part:{},confirm:null,pc:null,modal:null,armed:false};
+var root=document.getElementById('app');
+var modalEl=document.getElementById('modal');
+
+function ic(p,sz,fill){return '<svg viewBox="0 0 24 24" width="'+(sz||24)+'" height="'+(sz||24)+'" fill="'+(fill?'currentColor':'none')+'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';}
+var P={
+  drop:'<path d="M12 3c3.6 4.3 6 7.3 6 10.5a6 6 0 0 1-12 0C6 10.300 8.400 7.300 12 3z"/>',
+  check:'<path d="M5 12.500l4.500 4.500L19 7.500" stroke-width="3"/>',
+  today:'<rect x="3.500" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.500 10h17"/>',
+  homes:'<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+  money:'<circle cx="12" cy="12" r="8.500"/><path d="M12 7v10M14.500 9.500c0-1-1.100-1.700-2.500-1.700s-2.500.7-2.500 1.700 1.100 1.500 2.500 1.800 2.500.8 2.500 1.800-1.100 1.700-2.500 1.700-2.500-.7-2.500-1.700"/>',
+  backup:'<path d="M12 4v10M8 10l4 4 4-4M5 19h14"/>',
+  prev:'<path d="M14.500 5l-7 7 7 7"/>', next:'<path d="M9.500 5l7 7-7 7"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>'
+};
+
+function render(){
+  document.documentElement.lang=db.lang==='ur'?'ur':'en';
+  document.documentElement.dir=db.lang==='ur'?'rtl':'ltr';
+  var v=ui.tab==='today'?todayView():ui.tab==='homes'?homesView():ui.tab==='money'?moneyView():backupView();
+  root.innerHTML=headerHTML()+(memOnly?'<div class="warn">'+T('nostore')+'</div>':'')+'<main>'+v+'</main>'+navHTML();
+}
+function headerHTML(){
+  var L={en:'EN',ur:'اردو',ro:'Roman'};
+  return '<header class="hdr"><div class="brand">'+ic(P.drop,26,true)+'<span>'+T('app')+'</span></div><div class="lang" role="group" aria-label="Language">'+
+    ['en','ur','ro'].map(function(l){return '<button data-act="lang" data-l="'+l+'" aria-pressed="'+(db.lang===l)+'">'+L[l]+'</button>';}).join('')+'</div></header>';
+}
+function navHTML(){
+  var items=[['today','t_today',P.today],['homes','t_homes',P.homes],['money','t_money',P.money],['backup','t_backup',P.backup]];
+  return '<nav class="nav" aria-label="Main"><div>'+items.map(function(i){return '<button data-act="tab" data-t="'+i[0]+'"'+(ui.tab===i[0]?' aria-current="page"':'')+'>'+ic(i[2],22)+'<span>'+T(i[1])+'</span></button>';}).join('')+'</div></nav>';
+}
+function emptyState(){
+  return '<div class="empty">'+ic(P.drop,44,true).replace('<svg','<svg style="color:var(--accent)"')+'<h2>'+T('empty_t')+'</h2><p>'+T('empty_b')+'</p>'+
+    '<button class="btn pri" data-act="addHome">'+T('add_home')+'</button><button class="btn" data-act="sample">'+T('load_sample')+'</button></div>';
+}
+function balChip(hid){
+  var b=bal(hid);
+  if(b>0)return '<span class="chip due">'+T('owes',{n:fmt(b)})+'</span>';
+  if(b<0)return '<span class="chip ok">'+T('advance',{n:fmt(-b)})+'</span>';
+  return '';
+}
+
+/* ---------- Today ---------- */
+function todayView(){
+  if(!db.homes.length)return emptyState();
+  var date=ui.date,t=todayStr(),isT=date===t,fut=date>t;
+  var due=db.homes.filter(function(h){return isDue(h,date);});
+  var ids={};due.forEach(function(h){ids[h.id]=1;});
+  var extras=db.homes.filter(function(h){return !ids[h.id]&&delivery(h.id,date);});
+  var list=due.concat(extras).sort(byRoute);
+  var done=list.filter(function(h){return delivery(h.id,date);}).length;
+  var pend=0;db.homes.forEach(function(h){var b=bal(h.id);if(b>0)pend+=b;});
+  var pct=list.length?Math.round(done/list.length*100):0;
+  var remind='';
+  if(db.ent.length){
+    var lb=db.lastBackup?dayDiff(t,db.lastBackup.slice(0,10)):999;
+    if(lb>=14)remind='<button class="warn" style="width:100%;border:0;text-align:start" data-act="tab" data-t="backup">'+T('b_remind')+'</button>';
+  }
+  var h='<div class="dnav"><button class="ib" data-act="day" data-d="-1" aria-label="-1">'+ic(P.prev,22).replace('<svg','<svg class="flip"')+'</button>'+
+    '<div class="mid"><b>'+fmtD(date)+'</b>'+(isT?'<span class="sub">'+T('tdy')+'</span>':'<button data-act="gotoday">'+T('tdy')+'</button>')+'</div>'+
+    '<button class="ib" data-act="day" data-d="1" aria-label="+1">'+ic(P.next,22).replace('<svg','<svg class="flip"')+'</button></div>';
+  h+='<div class="sum"><div><b>'+done+'/'+list.length+'</b><span>'+T('t_today')+'</span></div><div><b>Rs '+fmt(cashFor(date))+'</b><span>'+T('s_cash')+'</span></div><div><b>Rs '+fmt(pend)+'</b><span>'+T('s_pending')+'</span></div></div>';
+  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'" aria-label="'+T('of_done',{a:done,b:list.length})+'"><i style="width:'+pct+'%"></i></div>'+remind;
+  if(fut)h+='<p class="note">'+T('future')+'</p>';
+  if(!list.length)h+='<p class="note">'+T('nodue')+'</p>';
+  h+='<ul class="list">'+list.map(function(x){return '<li>'+card(x,date,fut)+'</li>';}).join('')+'</ul>';
+  if(!fut)h+='<div class="acts"><button class="btn full" data-act="extra">'+T('addextra')+'</button></div>';
+  return h;
+}
+function card(h,date,fut){
+  var e=delivery(h.id,date),done=!!e,key=date+h.id;
+  var q=e?e.b:(ui.draft[key]||h.bottles),price=e?e.pr:h.price,amt=q*price;
+  var s='<div class="card'+(done?' done':'')+'"><button class="chk" data-act="tick" data-h="'+h.id+'" aria-pressed="'+done+'"'+(fut?' disabled':'')+' aria-label="'+esc(h.name)+'">'+ic(P.check,24)+'</button><div class="main">';
+  s+='<div class="top"><div class="nm">'+esc(h.name)+'</div><div class="amt">Rs '+fmt(amt)+'</div></div>';
+  s+='<div class="sub">'+esc(h.area||'')+'</div>';
+  var chips=balChip(h.id);if(h.paused)chips+='<span class="chip">'+T('p_short')+'</span>';if(h.note)chips+='<span class="chip">'+esc(h.note)+'</span>';
+  if(chips)s+='<div class="chips-row">'+chips+'</div>';
+  s+='<div class="row2">';
+  if(fut)s+='<span class="chip">'+T('bottles_n',{n:q})+'</span>';
+  else s+='<div class="step"><button data-act="qty" data-h="'+h.id+'" data-dl="-1" aria-label="-">−</button><output>'+T('bottles_n',{n:q})+'</output><button data-act="qty" data-h="'+h.id+'" data-dl="1" aria-label="+">+</button></div>';
+  if(done&&amt>0){
+    var st=e.paid>=e.amt?'paid':e.paid<=0?'pend':'part';
+    if(ui.part[key])st='part';
+    s+='<div class="seg" role="radiogroup">'+
+      '<button class="s-paid" role="radio" aria-checked="'+(st==='paid')+'" data-act="pay" data-m="paid" data-h="'+h.id+'">'+T('pay_paid')+'</button>'+
+      '<button class="s-part" role="radio" aria-checked="'+(st==='part')+'" data-act="pay" data-m="part" data-h="'+h.id+'">'+T('pay_part')+'</button>'+
+      '<button class="s-pend" role="radio" aria-checked="'+(st==='pend')+'" data-act="pay" data-m="pend" data-h="'+h.id+'">'+T('pay_pend')+'</button></div>';
+    s+='</div>';
+    if(st==='part')s+='<div class="partin"><label for="pp-'+h.id+'">'+T('part_amt')+'</label><input type="number" inputmode="numeric" min="0" max="'+e.amt+'" id="pp-'+h.id+'" data-chg="part" data-h="'+h.id+'" value="'+(e.paid||'')+'"></div>';
+  } else s+='</div>';
+  return s+'</div></div>';
+}
+
+/* ---------- Homes ---------- */
+function homeList(){
+  var q=ui.search.trim().toLowerCase();
+  var l=db.homes.slice().sort(byRoute).filter(function(h){return !q||(h.name+' '+(h.area||'')).toLowerCase().indexOf(q)>-1;});
+  return l.map(function(h){
+    var nd=nextDue(h);
+    var chips='<span class="chip">'+esc(schedText(h))+'</span>';
+    chips+=h.paused?'<span class="chip">'+T('p_short')+'</span>':(nd?'<span class="chip">'+T('next')+': '+rel(nd)+'</span>':'');
+    chips+=balChip(h.id);
+    return '<li><button class="card" data-act="openHome" data-h="'+h.id+'"><div class="main"><div class="top"><div class="nm">'+esc(h.name)+'</div><div class="amt">'+T('bottles_n',{n:h.bottles})+' · Rs '+fmt(h.price)+'</div></div><div class="sub">'+esc(h.area||'')+'</div><div class="chips-row">'+chips+'</div></div></button></li>';
+  }).join('');
+}
+function homesView(){
+  if(!db.homes.length)return emptyState();
+  return '<div class="toolbar"><input type="text" id="q" value="'+esc(ui.search)+'" placeholder="'+esc(T('search'))+'" aria-label="'+esc(T('search'))+'"><button class="btn pri" data-act="addHome">+ '+T('add_home')+'</button></div><ul class="list" id="homelist">'+homeList()+'</ul>';
+}
+
+/* ---------- Money ---------- */
+function moneyView(){
+  var t=todayStr(),rows=db.homes.map(function(h){return {h:h,b:bal(h.id)};});
+  var tp=0;rows.forEach(function(r){if(r.b>0)tp+=r.b;});
+  var owing=rows.filter(function(r){return r.b>0;}).sort(function(a,b){return b.b-a.b;});
+  var ev=[];
+  db.ent.forEach(function(e){
+    var h=home(e.h);if(!h)return;
+    if(e.k==='d'&&e.paid>0)ev.push({date:e.date,name:h.name,amt:e.paid,why:'m_deliv'});
+    if(e.k==='p')ev.push({date:e.date,name:h.name,amt:e.amt,why:'m_later'});
+  });
+  ev.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0;});
+  var s='<div class="hero"><div class="sub">'+T('m_total')+'</div><div class="big">Rs '+fmt(tp)+'</div></div>';
+  s+='<div class="pair"><div><span>'+T('m_today')+'</span><b>Rs '+fmt(cashFor(t))+'</b></div><div><span>'+T('m_month')+'</span><b>Rs '+fmt(cashFor(t.slice(0,7)))+'</b></div></div>';
+  s+='<h2 class="h2">'+T('m_list')+'</h2>';
+  if(!owing.length)s+='<p class="note">'+T('m_clear')+'</p>';
+  else s+='<ul class="list">'+owing.map(function(r){
+    var ld=lastDel(r.h);
+    return '<li><div class="card"><div class="main"><div class="top"><button class="nm" style="border:0;background:none;padding:0;text-align:start" data-act="openHome" data-h="'+r.h.id+'">'+esc(r.h.name)+'</button><div class="amt" style="color:var(--due)">Rs '+fmt(r.b)+'</div></div><div class="sub">'+esc(r.h.area||'')+(ld?' · '+T('last')+': '+fmtD(ld):'')+'</div><div class="row2"><button class="btn sm pri" data-act="recv" data-h="'+r.h.id+'">'+T('recv')+'</button></div></div></div></li>';
+  }).join('')+'</ul>';
+  s+='<h2 class="h2">'+T('m_cash')+'</h2>';
+  if(!ev.length)s+='<p class="note">'+T('m_none')+'</p>';
+  else s+='<ul class="hist">'+ev.slice(0,25).map(function(x){
+    return '<li><div><b>'+esc(x.name)+'</b><div class="sub">'+fmtD(x.date)+' · '+T(x.why)+'</div></div><div class="amt" style="color:var(--paid)">Rs '+fmt(x.amt)+'</div></li>';
+  }).join('')+'</ul>';
+  return s;
+}
+
+/* ---------- Backup ---------- */
+function backupView(){
+  var lb=db.lastBackup?T('b_last',{d:fmtD(db.lastBackup.slice(0,10))}):T('b_none');
+  return '<h2 class="h2" style="margin-block-start:6px">'+T('b_copy_t')+'</h2><p class="note">'+T('b_why')+'</p><p class="note"><b>'+lb+'</b></p>'+
+    '<div class="fld"><textarea id="btxt" readonly rows="4" aria-label="'+esc(T('b_copy_t'))+'">'+esc(JSON.stringify(db))+'</textarea></div>'+
+    '<button class="btn pri full" data-act="copyBackup">'+T('b_copy')+'</button>'+
+    '<h2 class="h2">'+T('b_restore')+'</h2><div class="fld"><textarea id="rtxt" placeholder="'+esc(T('b_paste'))+'" aria-label="'+esc(T('b_paste'))+'"></textarea></div>'+
+    '<div class="err" id="rmsg" role="alert"></div><button class="btn full" data-act="restore">'+T('b_btn')+'</button>';
+}
+
+/* ---------- Modals ---------- */
+function openModal(m){ui.modal=m;renderModal();}
+function closeModal(){ui.modal=null;renderModal();}
+function renderModal(){
+  var m=ui.modal;
+  if(!m){modalEl.innerHTML='';document.body.style.overflow='';return;}
+  var prev=modalEl.querySelector('.sheet'),st=prev?prev.scrollTop:0;
+  var body=m.t==='detail'?detailHTML(m.id):m.t==='form'?formHTML(m.id):m.t==='recv'?recvHTML(m.id):extraHTML();
+  modalEl.innerHTML='<div class="scrim"><div class="sheet" role="dialog" aria-modal="true" tabindex="-1">'+body+'</div></div>';
+  document.body.style.overflow='hidden';
+  var sh=modalEl.querySelector('.sheet');if(prev&&m.keep)sh.scrollTop=st;
+  if(!m.keep&&sh.focus)sh.focus({preventScroll:true});
+}
+function xbtn(){return '<button class="ib" data-act="closeModal" aria-label="'+esc(T('close'))+'">'+ic(P.x,20)+'</button>';}
+function detailHTML(id){
+  var h=home(id);if(!h)return '';
+  var b=bal(id),nd=nextDue(h),ld=lastDel(h);
+  var items=db.ent.filter(function(e){return e.h===id;}).sort(function(a,b2){return a.date<b2.date?1:a.date>b2.date?-1:0;}).slice(0,60);
+  var s='<div class="sheet-h"><div><h2>'+esc(h.name)+'</h2><div class="sub">'+esc(h.area||'')+(h.phone?' · '+esc(h.phone):'')+'</div></div>'+xbtn()+'</div>';
+  s+='<div class="kv"><div><span>'+T('bal')+'</span><b style="color:'+(b>0?'var(--due)':'var(--paid)')+'">'+(b>0?T('owes',{n:fmt(b)}):b<0?T('advance',{n:fmt(-b)}):'Rs 0')+'</b></div>'+
+    '<div><span>'+T('per')+'</span><b>'+T('bottles_n',{n:h.bottles})+' · Rs '+fmt(h.price)+'</b></div>'+
+    '<div><span>'+T('sched')+'</span><b>'+esc(schedText(h))+(h.paused?' ('+T('p_short')+')':'')+'</b></div>'+
+    '<div><span>'+T('next')+'</span><b>'+(h.paused?T('p_short'):nd?rel(nd):T('never'))+'</b></div>'+
+    '<div><span>'+T('last')+'</span><b>'+(ld?fmtD(ld):T('never'))+'</b></div></div>';
+  if(h.note)s+='<p class="note">'+esc(h.note)+'</p>';
+  s+='<div class="acts">'+(b>0?'<button class="btn pri" data-act="recv" data-h="'+id+'">'+T('recv')+'</button>':'')+'<button class="btn" data-act="editHome" data-h="'+id+'">'+T('edit')+'</button></div>';
+  s+='<h3 class="h2" style="margin-block-start:8px">'+T('hist')+'</h3>';
+  if(!items.length)s+='<p class="note">'+T('hist_none')+'</p>';
+  else s+='<ul class="hist">'+items.map(function(e){
+    var txt=e.k==='d'?T('h_deliv',{n:e.b,a:fmt(e.amt),p:fmt(e.paid)}):T('h_pay',{a:fmt(e.amt)});
+    var sure=ui.confirm==='de'+e.id;
+    return '<li><div><b>'+fmtD(e.date)+'</b><div class="sub">'+txt+'</div></div><button class="btn sm dng" data-act="delEntry" data-id="'+e.id+'">'+(sure?T('del_sure'):T('del'))+'</button></li>';
+  }).join('')+'</ul>';
+  return s;
+}
+function formHTML(id){
+  var h=id?home(id):null,neu=!h;
+  var lastPrice=db.homes.length?db.homes[db.homes.length-1].price:'';
+  h=h||{name:'',area:'',phone:'',bottles:1,price:lastPrice,cod:false,paused:false,note:'',sched:{type:'daily',n:2,start:todayStr(),days:[1,4]}};
+  var s=h.sched||{type:'daily',n:2,start:todayStr(),days:[1,4]};
+  var days=WEEK_ORDER.map(function(d){return '<button type="button" data-act="wd" data-day="'+d+'" aria-pressed="'+((s.days||[]).indexOf(d)>-1)+'">'+WD[db.lang][d]+'</button>';}).join('');
+  var radio=function(v,k){return '<label class="radio"><input type="radio" name="stype" value="'+v+'" data-chg="stype"'+(s.type===v?' checked':'')+'><span>'+T(k)+'</span></label>';};
+  return '<div class="sheet-h"><h2>'+(neu?T('add_home'):esc(h.name))+'</h2>'+xbtn()+'</div>'+
+    '<div class="fld"><label for="f-name">'+T('f_name')+'</label><input type="text" id="f-name" value="'+esc(h.name)+'" autocomplete="off"></div>'+
+    '<div class="fld"><label for="f-area">'+T('f_area')+'</label><input type="text" id="f-area" value="'+esc(h.area)+'" autocomplete="off"></div>'+
+    '<div class="fld"><label for="f-phone">'+T('f_phone')+'</label><input type="tel" id="f-phone" value="'+esc(h.phone)+'"></div>'+
+    '<div class="two"><div class="fld"><label for="f-b">'+T('f_bottles')+'</label><input type="number" inputmode="numeric" min="1" id="f-b" value="'+h.bottles+'"></div>'+
+    '<div class="fld"><label for="f-p">'+T('f_price')+'</label><input type="number" inputmode="numeric" min="0" id="f-p" value="'+h.price+'"></div></div>'+
+    '<label class="radio" style="margin-block-end:10px"><input type="checkbox" id="f-cod"'+(h.cod?' checked':'')+'><span>'+T('f_cod')+'</span></label>'+
+    '<div class="lbl" style="margin-block:8px 2px">'+T('f_sched')+'</div>'+radio('daily','sc_daily')+radio('every','sc_every')+radio('weekdays','sc_week')+
+    '<div id="sch-every"'+(s.type==='every'?'':' hidden')+'><div class="two"><div class="fld"><label for="f-n">'+T('sc_n')+'</label><input type="number" inputmode="numeric" min="1" id="f-n" value="'+(s.n||2)+'"></div>'+
+    '<div class="fld"><label for="f-start">'+T('sc_start')+'</label><input type="date" id="f-start" value="'+(s.start||todayStr())+'"></div></div></div>'+
+    '<div id="sch-days"'+(s.type==='weekdays'?'':' hidden')+'><div class="chipsel" id="f-days" style="margin-block:4px 14px">'+days+'</div></div>'+
+    '<label class="radio" style="margin-block-end:10px"><input type="checkbox" id="f-paused"'+(h.paused?' checked':'')+'><span>'+T('paused')+'</span></label>'+
+    '<div class="fld"><label for="f-note">'+T('f_note')+'</label><input type="text" id="f-note" value="'+esc(h.note)+'" autocomplete="off"></div>'+
+    '<div class="err" id="f-err" role="alert"></div>'+
+    '<div class="acts"><button class="btn pri" data-act="saveHome" data-id="'+(id||'')+'">'+T('save')+'</button><button class="btn" data-act="closeModal">'+T('cancel')+'</button>'+
+    (neu?'':'<button class="btn dng" data-act="delHome" data-id="'+id+'">'+T('del')+'</button>')+'</div>';
+}
+function recvHTML(id){
+  var h=home(id);if(!h)return '';var b=bal(id);
+  return '<div class="sheet-h"><div><h2>'+T('recv')+'</h2><div class="sub">'+esc(h.name)+' · '+(b>0?T('owes',{n:fmt(b)}):'Rs 0')+'</div></div>'+xbtn()+'</div>'+
+    '<div class="fld"><label for="r-amt">'+T('recv_amt')+'</label><input type="number" inputmode="numeric" min="1" id="r-amt" value="'+(b>0?Math.round(b):'')+'"></div>'+
+    '<div class="err" id="r-err" role="alert"></div><div class="acts"><button class="btn pri" data-act="saveRecv" data-id="'+id+'">'+T('save')+'</button><button class="btn" data-act="closeModal">'+T('cancel')+'</button></div>';
+}
+function extraHTML(){
+  var date=ui.date;
+  var l=db.homes.filter(function(h){return !isDue(h,date)&&!delivery(h.id,date);}).sort(byRoute);
+  return '<div class="sheet-h"><h2>'+T('extra_t')+'</h2>'+xbtn()+'</div>'+
+    (l.length?'<ul class="list">'+l.map(function(h){return '<li><button class="card" data-act="pickExtra" data-h="'+h.id+'"><div class="main"><div class="top"><div class="nm">'+esc(h.name)+'</div><div class="amt">'+T('bottles_n',{n:h.bottles})+'</div></div><div class="sub">'+esc(h.area||'')+'</div></div></button></li>';}).join('')+'</ul>':'<p class="note">'+T('extra_none')+'</p>');
+}
+
+/* ---------- Actions ---------- */
+function toast(msg){
+  var d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=msg;document.body.appendChild(d);
+  setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},2800);
+}
+function twice(key){if(ui.pc===key)return true;ui.confirm=key;return false;}
+function refresh(){render();if(ui.modal){ui.modal.keep=true;renderModal();}}
+
+function tick(hid){
+  var date=ui.date;if(date>todayStr())return;
+  var ex=delivery(hid,date),h=home(hid);if(!h)return;
+  if(ex){db.ent=db.ent.filter(function(e){return e!==ex;});}
+  else{var b=ui.draft[date+hid]||h.bottles,amt=b*h.price;db.ent.push({id:uid(),k:'d',h:hid,date:date,b:b,pr:h.price,amt:amt,paid:h.cod?amt:0});}
+  save();render();
+}
+function qty(hid,dl){
+  var h=home(hid),date=ui.date,e=delivery(hid,date);if(!h)return;
+  if(e){var full=e.paid>=e.amt;e.b=Math.max(1,e.b+dl);e.amt=e.b*e.pr;e.paid=full?e.amt:Math.min(e.paid,e.amt);}
+  else{var k=date+hid;ui.draft[k]=Math.max(1,(ui.draft[k]||h.bottles)+dl);}
+  save();render();
+}
+function pay(hid,m){
+  var e=delivery(hid,ui.date);if(!e)return;var key=ui.date+hid;
+  if(m==='paid'){e.paid=e.amt;ui.part[key]=false;}
+  else if(m==='pend'){e.paid=0;ui.part[key]=false;}
+  else{if(e.paid>=e.amt)e.paid=0;ui.part[key]=true;}
+  save();render();
+}
+function setPart(hid,val){
+  var e=delivery(hid,ui.date);if(!e)return;
+  e.paid=Math.min(e.amt,Math.max(0,Math.round(+val||0)));
+  if(e.paid>=e.amt)ui.part[ui.date+hid]=false;
+  save();render();
+}
+function gv(id){return document.getElementById(id);}
+function ferr(msg){gv('f-err').textContent=msg;}
+function saveHome(id){
+  var name=gv('f-name').value.trim();if(!name)return ferr(T('err_name'));
+  var b=parseInt(gv('f-b').value,10),p=parseFloat(gv('f-p').value);
+  if(!(b>=1)||!(p>=0))return ferr(T('err_num'));
+  var type=document.querySelector('input[name="stype"]:checked').value;
+  var days=[].slice.call(document.querySelectorAll('#f-days [aria-pressed="true"]')).map(function(x){return +x.dataset.day;});
+  if(type==='weekdays'&&!days.length)return ferr(T('err_days'));
+  var sched={type:type,n:Math.max(1,parseInt(gv('f-n').value,10)||1),start:gv('f-start').value||todayStr(),days:days};
+  var rec={name:name,area:gv('f-area').value.trim(),phone:gv('f-phone').value.trim(),bottles:b,price:p,cod:gv('f-cod').checked,paused:gv('f-paused').checked,note:gv('f-note').value.trim(),sched:sched};
+  if(id){Object.assign(home(id),rec);}else{rec.id=uid();rec.created=todayStr();db.homes.push(rec);}
+  save();ui.modal=null;renderModal();render();
+}
+function saveRecv(id){
+  var v=Math.round(parseFloat(gv('r-amt').value));
+  if(!(v>0)){gv('r-err').textContent=T('err_num');return;}
+  db.ent.push({id:uid(),k:'p',h:id,date:todayStr(),amt:v});
+  save();ui.modal=null;renderModal();render();
+}
+function loadSample(){
+  var t=todayStr();
+  var mk=function(n,a,b,pr,cod,sc){return {id:uid(),name:n+' '+T('sample'),area:a,phone:'',bottles:b,price:pr,cod:cod,sched:sc,paused:false,note:'',created:t};};
+  db.homes.push(
+    mk('Malik House','Block A, Street 4',2,120,false,{type:'daily',n:2,start:t,days:[]}),
+    mk('Raza Family','Block A, Street 7',1,120,true,{type:'every',n:2,start:t,days:[]}),
+    mk('Mrs. Khan','Block B, House 12',3,130,false,{type:'weekdays',n:2,start:t,days:[1,4]}),
+    mk('Ali General Store','Main Market',4,120,true,{type:'weekdays',n:2,start:t,days:[2,5,0]}));
+  save();render();
+}
+function copyBackup(){
+  var ta=gv('btxt'),txt=ta.value;
+  var ok=function(){db.lastBackup=new Date().toISOString();save();render();toast(T('b_copied'));};
+  var fail=function(){ta.focus();ta.select();toast(T('b_copyfail'));};
+  try{navigator.clipboard.writeText(txt).then(ok,fail);}catch(e){fail();}
+}
+function doRestore(){
+  var msg=gv('rmsg'),raw=gv('rtxt').value.trim(),d;
+  try{d=JSON.parse(raw);}catch(e){msg.textContent=T('b_bad');ui.armed=false;return;}
+  if(!d||!Array.isArray(d.homes)||!Array.isArray(d.ent)){msg.textContent=T('b_bad');ui.armed=false;return;}
+  if(!ui.armed){ui.armed=true;msg.textContent=T('b_confirm');return;}
+  ui.armed=false;db=Object.assign(blank(),d);save();render();toast(T('b_done'));
+}
+
+function onClick(ev){
+  var t=ev.target;
+  if(t.classList&&t.classList.contains('scrim')){closeModal();return;}
+  var el=t.closest('[data-act]');if(!el)return;
+  ui.pc=ui.confirm;ui.confirm=null;
+  var a=el.dataset.act,h=el.dataset.h,id=el.dataset.id;
+  switch(a){
+    case 'lang':db.lang=el.dataset.l;save();render();if(ui.modal)renderModal();break;
+    case 'tab':ui.tab=el.dataset.t;ui.armed=false;render();window.scrollTo(0,0);break;
+    case 'day':ui.date=addD(ui.date,+el.dataset.d);ui.follow=ui.date===todayStr();render();break;
+    case 'gotoday':ui.date=todayStr();ui.follow=true;render();break;
+    case 'tick':tick(h);break;
+    case 'qty':qty(h,+el.dataset.dl);break;
+    case 'pay':pay(h,el.dataset.m);break;
+    case 'openHome':openModal({t:'detail',id:h});break;
+    case 'addHome':openModal({t:'form',id:null});break;
+    case 'editHome':openModal({t:'form',id:h});break;
+    case 'closeModal':closeModal();break;
+    case 'wd':el.setAttribute('aria-pressed',el.getAttribute('aria-pressed')==='true'?'false':'true');break;
+    case 'saveHome':saveHome(id||null);break;
+    case 'delHome':
+      if(el.dataset.sure){db.homes=db.homes.filter(function(x){return x.id!==id;});db.ent=db.ent.filter(function(x){return x.h!==id;});save();ui.modal=null;renderModal();render();}
+      else{el.dataset.sure='1';el.textContent=T('del_sure');}
+      break;
+    case 'delEntry':
+      if(twice('de'+id)){db.ent=db.ent.filter(function(x){return x.id!==id;});ui.confirm=null;save();refresh();}
+      else refresh();
+      break;
+    case 'recv':openModal({t:'recv',id:h});break;
+    case 'saveRecv':saveRecv(id);break;
+    case 'extra':openModal({t:'extra'});break;
+    case 'pickExtra':
+      var hm=home(h);if(hm){var b=hm.bottles,amt=b*hm.price;db.ent.push({id:uid(),k:'d',h:h,date:ui.date,b:b,pr:hm.price,amt:amt,paid:hm.cod?amt:0});save();}
+      ui.modal=null;renderModal();render();break;
+    case 'sample':loadSample();break;
+    case 'copyBackup':copyBackup();break;
+    case 'restore':doRestore();break;
+  }
+}
+function onChange(ev){
+  var el=ev.target,c=el.dataset&&el.dataset.chg;if(!c)return;
+  if(c==='part')setPart(el.dataset.h,el.value);
+  if(c==='stype'){gv('sch-every').hidden=el.value!=='every';gv('sch-days').hidden=el.value!=='weekdays';}
+}
+function onInput(ev){
+  var el=ev.target;
+  if(el.id==='q'){ui.search=el.value;var l=gv('homelist');if(l)l.innerHTML=homeList();}
+  if(el.id==='rtxt'){ui.armed=false;var m=gv('rmsg');if(m)m.textContent='';}
+}
+root.addEventListener('click',onClick);modalEl.addEventListener('click',onClick);
+root.addEventListener('change',onChange);modalEl.addEventListener('change',onChange);
+root.addEventListener('input',onInput);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&ui.modal)closeModal();});
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden)return;
+  if(ui.follow&&ui.date!==todayStr())ui.date=todayStr();
+  render();
+});
+render();
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+})();
+</script>
+</body>
+</html>
